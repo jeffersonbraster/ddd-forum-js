@@ -1,9 +1,14 @@
 import { PaginationParams } from '@/core/repositories/Pagination-params'
+import { AnswerAttachmentRepository } from '@/domain/forum/application/repositories/amswer-attachments-repository'
 import { AnswerRepository } from '@/domain/forum/application/repositories/asnwer-repository'
 import { Answer } from '@/domain/forum/enterprise/entities/answer'
 
 export class InMemoryAnswersRepository implements AnswerRepository {
   public items: Answer[] = []
+
+  constructor(
+    private answerAttachmentsRepository: AnswerAttachmentRepository,
+  ) {}
 
   async findById(id: string) {
     const answer = this.items.find((answer) => answer.id.toString() === id)
@@ -37,5 +42,7 @@ export class InMemoryAnswersRepository implements AnswerRepository {
     const index = this.items.findIndex((item) => item.id === answer.id)
 
     this.items.splice(index, 1)
+
+    this.answerAttachmentsRepository.deleteManyByAnswerId(answer.id.toString())
   }
 }
